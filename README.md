@@ -43,7 +43,7 @@ conda activate bard_era
 
 source install_environment.sh
 ```
-* or manually execute the following command:
+* (Optional) or manually execute the following command:
 ```bash
 # CUDA 11.3
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
@@ -82,9 +82,28 @@ Note: `*.pth` files should be placed in the `/pretrained` folder.
 
 ### Datasets
 * You can get the UIIS dataset in [Google Drive](https://drive.google.com/file/d/1MwGvsr2kJgKBGbU3zoZlXiqSSiP1ysGR/view?usp=sharing) from [WaterMask](https://github.com/LiamLian0727/WaterMask?tab=readme-ov-file).
+* (Optional) or manually execute the following command:
+```bash
+# CUDA 11.3
+cd data
+
+gdown --id 1MwGvsr2kJgKBGbU3zoZlXiqSSiP1ysGR
+
+unzip UIIS.zip
+
+mv UIIS/UDW ./
+
+rm UIIS.zip
+
+rm -rf UIIS
+
+cd ..
+```
+
+
 ```bash
   data
-    ├── UDW
+    ├── UIIS
     |   ├── annotations
     │   │   │   ├── train.json
     │   │   │   ├── val.json

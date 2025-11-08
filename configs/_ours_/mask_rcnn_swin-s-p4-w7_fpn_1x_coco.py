@@ -26,9 +26,9 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
     neck=dict(in_channels=[96, 192, 384, 768]),
     roi_head=dict(
-        type='BARISRoIHead',
+        type='BARDecoderRoIHead',
         mask_head=dict(
-            type='BARISMaskHead',
+            type='BARDecoderMaskHead',
             in_channels=256,
             num_classes=7,
             stage_output_mask_size=[14, 28, 56],

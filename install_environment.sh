@@ -4,7 +4,8 @@ echo "✅ Installing PyTorch + CUDA Toolkit via conda..."
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
 
 echo "✅ Installing current project in editable mode..."
-pip install -v -e .
+pip install -e .
+# or pip install -e . --no-build-isolation
 
 echo "✅ Installing mmcv-full..."
 pip install mmcv-full==1.5.3 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.12.0/index.html

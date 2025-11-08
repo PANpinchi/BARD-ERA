@@ -29,9 +29,9 @@ model = dict(
         num_learnable_embedding=16),
     neck=dict(in_channels=[128, 256, 512, 1024]),
     roi_head=dict(
-        type='BARISRoIHead',
+        type='BARDecoderRoIHead',
         mask_head=dict(
-            type='BARISMaskHead',
+            type='BARDecoderMaskHead',
             in_channels=256,
             num_classes=7,
             stage_output_mask_size=[14, 28, 56, 112],
