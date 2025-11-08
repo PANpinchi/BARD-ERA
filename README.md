@@ -69,9 +69,11 @@ mkdir pretrained
 
 cd pretrained
 
-gdown --id 1-nK4MYPiW5bB8wDHbIXzLimRkLLpek6x
+# Swin backbone
+gdown --id 1O0Qol2XT8rx8zUkukaqgVswvEKVwHmx1
 
-gdown --id 1_MxeMnI11CuvWHGEvud7COMwsPyVeNNv
+# ConvNeXt v2 backbone
+gdown --id 1e3h-4ji5-j0ywL5qL1NL4vRAbip-0Blr
 
 cd ..
 ```
@@ -100,6 +102,12 @@ python tools/train.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py --wor
 ## Testing
 ```bash
 python tools/test.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py [model_checkpoint_path (.pth)] --eval segm
+
+python tools/test.py configs/_ours_/mask_rcnn_convnext-b-p4-w7_fpn_1x_coco.py [model_checkpoint_path (.pth)] --eval segm
+
+python tools/test.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py pretrained/bard-era_swin_base.pth --eval segm
+
+python tools/test.py configs/_ours_/mask_rcnn_convnext-b-p4-w7_fpn_1x_coco.py pretrained/bard-era_convnext_base.pth --eval segm
 ```
 
 

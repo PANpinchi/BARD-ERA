@@ -8,7 +8,7 @@ checkpoint_file = 'https://download.openmmlab.com/mmclassification/v0/convnext-v
 model = dict(
     backbone=dict(
         _delete_=True,
-        type='ConvNeXtWithEMA',
+        type='ConvNeXtWithERA',
         arch='base',
         out_indices=[0, 1, 2, 3],
         drop_path_rate=0.1,
@@ -18,7 +18,7 @@ model = dict(
         init_cfg=dict(
             type='Pretrained', checkpoint=checkpoint_file,
             prefix='backbone.'),
-        with_ema=True,
+        with_ERA=True,
         projection_ratio=8,
         num_learnable_embedding=16),
     neck=dict(in_channels=[128, 256, 512, 1024]),

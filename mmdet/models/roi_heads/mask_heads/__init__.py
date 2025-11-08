@@ -14,12 +14,12 @@ from .scnet_semantic_head import SCNetSemanticHead
 from .water_mask_head import WaterMaskHead
 from .r3_cnn_mask_head import R3MaskHead
 from .refine_mask_head import RefineMaskHead
-from .baris_mask_head import BARISMaskHead
+from .bard_mask_head import BARDecoderMaskHead
 
 __all__ = [
     'FCNMaskHead', 'HTCMaskHead', 'FusedSemanticHead', 'GridHead',
     'MaskIoUHead', 'CoarseMaskHead', 'MaskPointHead', 'SCNetMaskHead',
     'SCNetSemanticHead', 'GlobalContextHead', 'FeatureRelayHead',
     'DynamicMaskHead', 'WaterMaskHead', 'FCCMaskIoUHead', 'R3MaskHead',
-    'RefineMaskHead', 'BARISMaskHead'
+    'RefineMaskHead', 'BARDecoderMaskHead'
 ]

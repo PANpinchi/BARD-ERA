@@ -10,7 +10,13 @@ from mmdet.models.losses.cross_entropy_loss import generate_block_target, genera
 
 
 @HEADS.register_module()
-class BARISRoIHead(StandardRoIHead):
+class BARDercoderRoIHead(StandardRoIHead):
+    """Boundary-Aware Refinement Decoder (BARDecoder) RoI head.
+
+    A customized RoI head that refines instance masks using boundary-aware
+    cues. This implementation extends StandardRoIHead and replaces the
+    original mask head with BARDecoder for enhanced edge precision.
+    """
     def _mask_forward_train(self, x, sampling_results, bbox_feats, gt_masks, img_metas):
         """Run forward function and calculate loss for mask head in training."""
 

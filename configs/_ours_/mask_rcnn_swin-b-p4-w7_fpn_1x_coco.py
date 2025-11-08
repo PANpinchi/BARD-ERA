@@ -8,7 +8,7 @@ model = dict(
     type='MaskRCNN',
     backbone=dict(
         _delete_=True,
-        type='SwinTransformerWithEMA',
+        type='SwinTransformerWithERA',
         embed_dims=128,
         depths=[2, 2, 18, 2],
         num_heads=[4, 8, 16, 32],
@@ -24,7 +24,7 @@ model = dict(
         with_cp=False,
         convert_weights=True,
         init_cfg=dict(type='Pretrained', checkpoint=pretrained),
-        with_ema=True,
+        with_ERA=True,
         projection_ratio=4,
         num_learnable_embedding=16),
     neck=dict(in_channels=[128, 256, 512, 1024]),

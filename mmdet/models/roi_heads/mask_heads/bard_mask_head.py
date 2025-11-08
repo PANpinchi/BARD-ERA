@@ -155,7 +155,16 @@ class RefineBlock(BaseModule):
 
 
 @HEADS.register_module()
-class BARISMaskHead(BaseModule):
+class BARDecoderMaskHead(BaseModule):
+    """Boundary-Aware Refinement Decoder (BARDecoder) for instance segmentation.
+
+    This head refines instance masks by progressively aggregating
+    multi-scale stage features (stages 1–4) with boundary-aware cues.
+    It employs:
+        (1) Multi-Stage Guided Refinement Network (MSGRN)
+        (2) Depthwise-Separable Upsampling (DSU)
+        (3) Feed-Forward Network (FFN) enhancement
+    """
     def __init__(self,
                  num_convs=2,
                  in_channels=256,
@@ -173,7 +182,7 @@ class BARISMaskHead(BaseModule):
                  # ablation
                  with_MSGRN=True,
                  with_DSU=True):
-        super(BARISMaskHead, self).__init__(init_cfg)
+        super(BARDecoderMaskHead, self).__init__(init_cfg)
         self.num_convs = num_convs
         self.in_channels = in_channels
         self.conv_out_channels = conv_out_channels

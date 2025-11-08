@@ -51,7 +51,18 @@ class ChannelAttention(nn.Module):
         return x * y
 
 
-class MultiScaleFeedForwardOp(nn.Module):
+class MultiScaleFeatureExtraction(nn.Module):
+    """Multi-Scale Feature Extraction (MSFE) module.
+
+    This module extracts degradation-aware features across multiple spatial
+    frequencies using depthwise convolutions with diverse receptive fields.
+    It captures underwater degradations such as turbidity and color distortion
+    by combining multi-scale responses and applying channel attention for
+    adaptive feature enhancement.
+
+    Args:
+        in_features (int): Number of input feature channels.
+    """
     def __init__(self, in_features):
         super().__init__()
         self.conv_3 = nn.Sequential(
@@ -87,10 +98,29 @@ class MultiScaleFeedForwardOp(nn.Module):
         return identity + x
 
 
-class EnvironmentalMultiScaleAdapter(BaseModule):
-    def __init__(self, in_dim, factor=4, num_environment_embeds=16, with_MSFN=True, with_environmental_adaptation=True):
+class EnvironmentRobustAdapter(BaseModule):
+    """Environment-Robust Adapter (ERA) module for underwater feature adaptation.
+
+    This module enhances the environmental robustness of pretrained backbones by
+    integrating two components:
+        (1) Multi-Scale Feature Extraction (MSFE) for capturing degradation patterns
+            across multiple spatial frequencies.
+        (2) Environmental Adaptation (EA) for adaptive modulation using learnable
+            environmental embeddings.
+
+    Args:
+        in_dim (int): Number of input feature channels.
+        factor (int): Bottleneck reduction ratio for dimensionality projection.
+        num_environment_embeds (int): Number of learnable environmental embeddings.
+            Default: 16.
+        with_MSFE (bool): Whether to enable multi-scale feature extraction (MSFE).
+            Default: True.
+        with_environmental_adaptation (bool): Whether to enable environmental
+            adaptation (EA). Default: True.
+    """
+    def __init__(self, in_dim, factor=4, num_environment_embeds=16, with_MSFE=True, with_environmental_adaptation=True):
         super().__init__()
-        self.with_MSFN = with_MSFN
+        self.with_MSFE = with_MSFE
         self.with_environmental_adaptation = with_environmental_adaptation
         self.norm = nn.LayerNorm(in_dim)
         self.gamma = nn.Parameter(torch.ones(in_dim) * 1e-6)
@@ -98,9 +128,9 @@ class EnvironmentalMultiScaleAdapter(BaseModule):
 
         self.project_down = nn.Linear(in_dim, in_dim // factor)
 
-        # Multi-Scale Feed-Forward Networks (MSFN)
-        if self.with_MSFN:
-            self.ms_ffn = MultiScaleFeedForwardOp(in_dim // factor)
+        # Multi-Scale Feed-Forward Extraction (MSFE)
+        if self.with_MSFE:
+            self.ms_ffn = MultiScaleFeatureExtraction(in_dim // factor)
 
         # Environmental Adaptation
         if self.with_environmental_adaptation:
@@ -126,7 +156,7 @@ class EnvironmentalMultiScaleAdapter(BaseModule):
         x = self.project_down(x)
 
         # Multi-Scale Feed-Forward Extraction (MSFE)
-        if self.with_MSFN:
+        if self.with_MSFE:
             b, n, c = x.shape
             h, w = hw_shapes
             x = x.reshape(b, h, w, c).permute(0, 3, 1, 2)
@@ -457,8 +487,8 @@ class SwinBlock(BaseModule):
                  with_cp=False,
                  init_cfg=None,
                  # Ablation
-                 with_ema=True,
-                 with_MSFN=True,
+                 with_ERA=True,
+                 with_MSFE=True,
                  with_environmental_adaptation=True,
                  projection_ratio=4,
                  num_learnable_embedding=16,
@@ -468,7 +498,7 @@ class SwinBlock(BaseModule):
 
         self.init_cfg = init_cfg
         self.with_cp = with_cp
-        self.with_ema = with_ema
+        self.with_ERA = with_ERA
         self.with_environmental_adaptation = with_environmental_adaptation
 
         self.norm1 = build_norm_layer(norm_cfg, embed_dims)[1]
@@ -495,11 +525,11 @@ class SwinBlock(BaseModule):
             add_identity=True,
             init_cfg=None)
 
-        if self.with_ema:
-            self.ema = EnvironmentalMultiScaleAdapter(in_dim=embed_dims, factor=projection_ratio,
-                                                      num_environment_embeds=num_learnable_embedding,
-                                                      with_MSFN=with_MSFN,
-                                                      with_environmental_adaptation=with_environmental_adaptation)
+        if self.with_ERA:
+            self.era = EnvironmentRobustAdapter(in_dim=embed_dims, factor=projection_ratio,
+                                                num_environment_embeds=num_learnable_embedding,
+                                                with_MSFE=with_MSFE,
+                                                with_environmental_adaptation=with_environmental_adaptation)
 
     def forward(self, x, hw_shape):
 
@@ -514,9 +544,9 @@ class SwinBlock(BaseModule):
             x = self.norm2(x)
             x = self.ffn(x, identity=identity)
 
-            # Environmental Multi-scale Adapter (ÊMA)
-            if self.with_ema:
-                x = self.ema(x, hw_shape)
+            # Environment-Robust Adapter (ERA)
+            if self.with_ERA:
+                x = self.era(x, hw_shape)
 
             return x
 
@@ -574,8 +604,8 @@ class SwinBlockSequence(BaseModule):
                  with_cp=False,
                  init_cfg=None,
                  # Ablation
-                 with_ema=True,
-                 with_MSFN=True,
+                 with_ERA=True,
+                 with_MSFE=True,
                  with_environmental_adaptation=True,
                  projection_ratio=4,
                  num_learnable_embedding=16,
@@ -605,8 +635,8 @@ class SwinBlockSequence(BaseModule):
                 norm_cfg=norm_cfg,
                 with_cp=with_cp,
                 init_cfg=None,
-                with_ema=with_ema,
-                with_MSFN=with_MSFN,
+                with_ERA=with_ERA,
+                with_MSFE=with_MSFE,
                 with_environmental_adaptation=with_environmental_adaptation,
                 projection_ratio=projection_ratio,
                 num_learnable_embedding=num_learnable_embedding,
@@ -627,8 +657,8 @@ class SwinBlockSequence(BaseModule):
 
 
 @BACKBONES.register_module()
-class SwinTransformerWithEMA(BaseModule):
-    """ Swin Transformer with Environmental Multi-scale Adapter (ÊMA)
+class SwinTransformerWithERA(BaseModule):
+    """ Swin Transformer with Environment-Robust Adapter (ERA)
     A PyTorch implement of : `Swin Transformer:
     Hierarchical Vision Transformer using Shifted Windows`  -
         https://arxiv.org/abs/2103.14030
@@ -710,15 +740,15 @@ class SwinTransformerWithEMA(BaseModule):
                  frozen_stages=-1,
                  init_cfg=None,
                  # Ablation
-                 with_ema=True,
-                 with_MSFN=True,
+                 with_ERA=True,
+                 with_MSFE=True,
                  with_environmental_adaptation=True,
                  projection_ratio=4,
                  num_learnable_embedding=16,
                  ):
         self.convert_weights = convert_weights
         self.frozen_stages = frozen_stages
-        self.with_ema = with_ema
+        self.with_ERA = with_ERA
         self.with_environmental_adaptation = with_environmental_adaptation
         if isinstance(pretrain_img_size, int):
             pretrain_img_size = to_2tuple(pretrain_img_size)
@@ -740,7 +770,7 @@ class SwinTransformerWithEMA(BaseModule):
         else:
             raise TypeError('pretrained must be a str or None')
 
-        super(SwinTransformerWithEMA, self).__init__(init_cfg=init_cfg)
+        super(SwinTransformerWithERA, self).__init__(init_cfg=init_cfg)
 
         num_layers = len(depths)
         self.out_indices = out_indices
@@ -801,8 +831,8 @@ class SwinTransformerWithEMA(BaseModule):
                 norm_cfg=norm_cfg,
                 with_cp=with_cp,
                 init_cfg=None,
-                with_ema=with_ema,
-                with_MSFN=with_MSFN,
+                with_ERA=with_ERA,
+                with_MSFE=with_MSFE,
                 with_environmental_adaptation=with_environmental_adaptation,
                 projection_ratio=projection_ratio,
                 num_learnable_embedding=num_learnable_embedding,
@@ -820,7 +850,7 @@ class SwinTransformerWithEMA(BaseModule):
 
     def train(self, mode=True):
         """Convert the model into training mode while keep layers freezed."""
-        super(SwinTransformerWithEMA, self).train(mode)
+        super(SwinTransformerWithERA, self).train(mode)
         self._freeze_stages()
 
     def _freeze_stages(self):
@@ -921,9 +951,9 @@ class SwinTransformerWithEMA(BaseModule):
             self.load_state_dict(state_dict, False)
 
         # freeze
-        if self.with_ema:
+        if self.with_ERA:
             for name, param in self.named_parameters():
-                if 'ema' not in name:
+                if 'era' not in name:
                     param.requires_grad = False
 
     def forward(self, x):

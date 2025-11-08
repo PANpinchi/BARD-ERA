@@ -48,7 +48,18 @@ class ChannelAttention(nn.Module):
         return x * y
 
 
-class MultiScaleFeedForwardOp(nn.Module):
+class MultiScaleFeatureExtraction(nn.Module):
+    """Multi-Scale Feature Extraction (MSFE) module.
+
+    This module extracts degradation-aware features across multiple spatial
+    frequencies using depthwise convolutions with diverse receptive fields.
+    It captures underwater degradations such as turbidity and color distortion
+    by combining multi-scale responses and applying channel attention for
+    adaptive feature enhancement.
+
+    Args:
+        in_features (int): Number of input feature channels.
+    """
     def __init__(self, in_features):
         super().__init__()
         self.conv_3 = nn.Sequential(
@@ -84,7 +95,7 @@ class MultiScaleFeedForwardOp(nn.Module):
         return identity + x
 
 
-class EnvironmentalMultiScaleAdapter(BaseModule):
+class EnvironmentRobustAdapter(BaseModule):
     def __init__(self, in_dim, factor=4, num_environment_embeds=16):
         super().__init__()
 
@@ -94,8 +105,8 @@ class EnvironmentalMultiScaleAdapter(BaseModule):
 
         self.project_down = nn.Linear(in_dim, in_dim // factor)
 
-        # Multi-Scale Feed-Forward Networks (MSFN)
-        self.ms_ffn = MultiScaleFeedForwardOp(in_dim // factor)
+        # Multi-Scale Feed-Forward Extraction (MSFE)
+        self.ms_ffn = MultiScaleFeatureExtraction(in_dim // factor)
 
         # Environmental Adaptation
         self.project_e = nn.Linear(in_dim // factor, num_environment_embeds)
@@ -185,13 +196,13 @@ class ConvNeXtBlock(BaseModule):
                  layer_scale_init_value=1e-6,
                  use_grn=False,
                  with_cp=False,
-                 with_ema=True,
+                 with_ERA=True,
                  projection_ratio=4,
                  num_learnable_embedding=16,
                  ):
         super().__init__()
         self.with_cp = with_cp
-        self.with_ema = with_ema
+        self.with_ERA = with_ERA
 
         self.depthwise_conv = nn.Conv2d(
             in_channels, in_channels, groups=in_channels, **dw_conv_cfg)
@@ -222,9 +233,9 @@ class ConvNeXtBlock(BaseModule):
         self.drop_path = DropPath(
             drop_path_rate) if drop_path_rate > 0. else nn.Identity()
 
-        if self.with_ema:
-            self.ema = EnvironmentalMultiScaleAdapter(in_dim=in_channels, factor=projection_ratio,
-                                                      num_environment_embeds=num_learnable_embedding)
+        if self.with_ERA:
+            self.era = EnvironmentRobustAdapter(in_dim=in_channels, factor=projection_ratio,
+                                                num_environment_embeds=num_learnable_embedding)
 
     def forward(self, x):
 
@@ -256,11 +267,11 @@ class ConvNeXtBlock(BaseModule):
 
             x = shortcut + self.drop_path(x)
 
-            # Environmental Multi-scale Adapter (ÊMA)
+            # Environment-Robust Adapter (ERA)
             b, c, h, w = x.shape
             hw_shape = (h, w)
             n = h * w
-            x = self.ema(x.permute(0, 2, 3, 1).reshape(b, n, c), hw_shape).reshape(b, h, w, c).permute(0, 3, 1, 2)
+            x = self.era(x.permute(0, 2, 3, 1).reshape(b, n, c), hw_shape).reshape(b, h, w, c).permute(0, 3, 1, 2)
 
             return x
 
@@ -272,8 +283,8 @@ class ConvNeXtBlock(BaseModule):
 
 
 @BACKBONES.register_module()
-class ConvNeXtWithEMA(BaseModule):
-    """ConvNeXt v1&v2 backbone with Environmental Multi-scale Adapter (ÊMA).
+class ConvNeXtWithERA(BaseModule):
+    """ConvNeXt v1&v2 backbone with Environment-Robust Adapter (ERA).
 
     A PyTorch implementation of `A ConvNet for the 2020s
     <https://arxiv.org/abs/2201.03545>`_ and
@@ -389,13 +400,13 @@ class ConvNeXtWithEMA(BaseModule):
                          bias=0.),
                  ],
                  # Ablation
-                 with_ema=True,
+                 with_ERA=True,
                  projection_ratio=4,
                  num_learnable_embedding=16,
                  ):
         super().__init__(init_cfg=init_cfg)
 
-        self.with_ema = with_ema
+        self.with_ERA = with_ERA
 
         if isinstance(arch, str):
             assert arch in self.arch_settings, \
@@ -479,7 +490,7 @@ class ConvNeXtWithEMA(BaseModule):
                     layer_scale_init_value=layer_scale_init_value,
                     use_grn=use_grn,
                     with_cp=with_cp,
-                    with_ema=with_ema,
+                    with_ERA=with_ERA,
                     projection_ratio=projection_ratio,
                     num_learnable_embedding=num_learnable_embedding,
                 ) for j in range(depth)
@@ -527,9 +538,9 @@ class ConvNeXtWithEMA(BaseModule):
             print("missing_keys:", missing_keys)
 
             # freeze
-            if self.with_ema:
+            if self.with_ERA:
                 for name, param in self.named_parameters():
-                    if 'ema' not in name:
+                    if 'era' not in name:
                         param.requires_grad = False
 
     def forward(self, x):
@@ -558,7 +569,7 @@ class ConvNeXtWithEMA(BaseModule):
                 param.requires_grad = False
 
     def train(self, mode=True):
-        super(ConvNeXtWithEMA, self).train(mode)
+        super(ConvNeXtWithERA, self).train(mode)
         self._freeze_stages()
 
     def get_layer_depth(self, param_name: str, prefix: str = ''):

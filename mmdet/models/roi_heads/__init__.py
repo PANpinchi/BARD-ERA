@@ -26,7 +26,7 @@ from .r3_roi_head import R3RoIHead
 
 from .water_roi_head import WaterRoIHead
 from .refine_roi_head import RefineRoIHead
-from .baris_roi_head import BARISRoIHead
+from .bard_roi_head import BARDercoderRoIHead
 from .cascade_water_roi_head import CascadeWaterRoIHead
 from .query_roi_head import QueryRoIHead
 
@@ -40,6 +40,6 @@ __all__ = [
     'SingleRoIExtractor', 'PISARoIHead', 'PointRendRoIHead', 'MaskPointHead',
     'CoarseMaskHead', 'DynamicRoIHead', 'SparseRoIHead', 'TridentRoIHead',
     'SCNetRoIHead', 'SCNetMaskHead', 'SCNetSemanticHead', 'SCNetBBoxHead',
-    'FeatureRelayHead', 'GlobalContextHead', 'WaterRoIHead', 'RefineRoIHead', 'BARISRoIHead',
+    'FeatureRelayHead', 'GlobalContextHead', 'WaterRoIHead', 'RefineRoIHead', 'BARDercoderRoIHead',
     'CascadeWaterRoIHead', 'R3RoIHead', 'QueryRoIHead'
 ]

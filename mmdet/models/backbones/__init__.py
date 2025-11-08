@@ -34,17 +34,17 @@ from .swin_adaptformer import SwinTransformerWithAdaptformer
 from .swin_mona import SwinTransformerWithMona
 
 # Our Methods
-from .swin_ema import SwinTransformerWithEMA
-from .convnext_ema import ConvNeXtWithEMA
+from .swin_era import SwinTransformerWithERA
+from .convnext_era import ConvNeXtWithERA
 
 __all__ = [
     'RegNet', 'ResNet', 'ResNetV1d', 'ResNeXt', 'SSDVGG', 'HRNet',
     'MobileNetV2', 'Res2Net', 'HourglassNet', 'DetectoRS_ResNet',
     'DetectoRS_ResNeXt', 'Darknet', 'ResNeSt', 'TridentResNet', 'CSPDarknet',
-    'SwinTransformer', 'SwinTransformerWithEMA', 'SwinTransformer_bitfit',
+    'SwinTransformer', 'SwinTransformerWithERA', 'SwinTransformer_bitfit',
     'SwinTransformer_norm_tuning', 'SwinTransformer_partial_1',  'SwinTransformerWithAdapter',
     'SwinTransformerWithLoRA', 'SwinTransformerWithAdaptformer', 'SwinTransformerWithMona',
-    'PyramidVisionTransformer', 'ConvNeXt', 'ConvNeXtWithEMA', 'ConvNeXt_bitfit',
+    'PyramidVisionTransformer', 'ConvNeXt', 'ConvNeXtWithERA', 'ConvNeXt_bitfit',
     'ConvNeXt_norm_tuning', 'ConvNeXt_partial_1', 'ConvNeXtWithConvAdapter',
     'ConvNeXtWithVPT', 'PyramidVisionTransformerV2', 'EfficientNet'
 ]
