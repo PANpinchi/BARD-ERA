@@ -48,7 +48,7 @@ source install_environment.sh
 # CUDA 11.3
 conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
 
-pip install -v -e .
+pip install -v -e . --no-build-isolation
 
 pip install mmcv-full==1.5.3 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.12.0/index.html
 
@@ -123,7 +123,7 @@ python tools/test.py configs/_ours_/mask_rcnn_convnext-b-p4-w7_fpn_1x_coco.py [m
 
 python tools/test.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py pretrained/bard-era_swin_base.pth --eval segm
 
-python tools/test.py configs/_ours_/mask_rcnn_convnext-b-p4-w7_fpn_1x_coco.py pretrained/bard-era_convnext_base.pth --eval segm
+python tools/test.py configs/_ours_/mask_rcnn_convnext-b_p4_w7_fpn_1x_coco.py pretrained/bard-era_convnext_base.pth --eval segm
 ```
 
 

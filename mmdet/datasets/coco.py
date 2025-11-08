@@ -397,6 +397,9 @@ class CocoDataset(CustomDataset):
         if metric_items is not None:
             if not isinstance(metric_items, list):
                 metric_items = [metric_items]
+        
+        if 'info' not in coco_gt.dataset:
+            coco_gt.dataset['info'] = {}
 
         eval_results = OrderedDict()
         for metric in metrics:

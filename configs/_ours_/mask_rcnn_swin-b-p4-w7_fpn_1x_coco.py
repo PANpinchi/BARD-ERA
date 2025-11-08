@@ -25,7 +25,7 @@ model = dict(
         convert_weights=True,
         init_cfg=dict(type='Pretrained', checkpoint=pretrained),
         with_ERA=True,
-        projection_ratio=4,
+        projection_ratio=2,
         num_learnable_embedding=16),
     neck=dict(in_channels=[128, 256, 512, 1024]),
     roi_head=dict(
