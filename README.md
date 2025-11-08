@@ -110,10 +110,43 @@ rm -rf UIIS
 cd ..
 ```
 
-## Training
+## 🏋️‍♂️ Training
+
+For our proposed method **BARD-ERA**, please refer to the configuration files in:  
+- `configs/_ours_/`
+
+For **comparison with state-of-the-art methods on the UIIS dataset**, please refer to the following configuration files:
+
+- `configs/swin/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py`  
+- `configs/swin/cascade_mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py`  
+- `configs/point_rend/point_rend_swin-b-p4-w7_caffe_fpn_mstrain_1x_coco.py`  
+- `configs/solov2/solov2_swin-b-p4-w7_fpn_1x_coco.py`  
+- `configs/mask2former/mask2former_swin-b-p4-w7_fpn_1x_coco.py`  
+- `configs/watermask/water_swin-b-p4-w7_fpn_1x_coco.py`
+
+For **comparison with different fine-tuning methods on the UIIS dataset**, please refer to the configuration files in:
+- `configs/fine_tuning/`
+
+For **Ablation Studies**, please refer to:  
+
+- `configs/ours/ablation/`
+- `configs/ours/ablation_2/`
+
+To start training, run:
 ```bash
-python tools/train.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py --work-dir [you_dir_to_save_logs_and_models] --no-validate --gpu-id [GPU_ID]
+python tools/train.py [config_file] \
+    --work-dir [dir_to_save_logs_and_models] \
+    --no-validate \
+    --gpu-id [GPU_ID]
 ```
+For example:
+```bash
+python tools/train.py configs/_ours_/mask_rcnn_swin-b-p4-w7_fpn_1x_coco.py \
+    --work-dir outputs_swin_base_ours \
+    --no-validate \
+    --gpu-id 0
+```
+
 
 ## Testing
 ```bash
