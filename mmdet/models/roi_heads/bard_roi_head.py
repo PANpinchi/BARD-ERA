@@ -10,7 +10,7 @@ from mmdet.models.losses.cross_entropy_loss import generate_block_target, genera
 
 
 @HEADS.register_module()
-class BARDercoderRoIHead(StandardRoIHead):
+class BARDecoderRoIHead(StandardRoIHead):
     """Boundary-Aware Refinement Decoder (BARDecoder) RoI head.
 
     A customized RoI head that refines instance masks using boundary-aware

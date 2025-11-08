@@ -82,9 +82,19 @@ Note: `*.pth` files should be placed in the `/pretrained` folder.
 
 ### Datasets
 * You can get the UIIS dataset in [Google Drive](https://drive.google.com/file/d/1MwGvsr2kJgKBGbU3zoZlXiqSSiP1ysGR/view?usp=sharing) from [WaterMask](https://github.com/LiamLian0727/WaterMask?tab=readme-ov-file).
+```bash
+  data
+    ├── UIIS
+    |   ├── annotations
+    │   │   │   ├── train.json
+    │   │   │   ├── val.json
+    │   ├── train
+    │   │   ├── L_1.jpg
+    │   │   ├── ......
+    │   ├── val
+```
 * (Optional) or manually execute the following command:
 ```bash
-# CUDA 11.3
 cd data
 
 gdown --id 1MwGvsr2kJgKBGbU3zoZlXiqSSiP1ysGR
@@ -98,19 +108,6 @@ rm UIIS.zip
 rm -rf UIIS
 
 cd ..
-```
-
-
-```bash
-  data
-    ├── UIIS
-    |   ├── annotations
-    │   │   │   ├── train.json
-    │   │   │   ├── val.json
-    │   ├── train
-    │   │   ├── L_1.jpg
-    │   │   ├── ......
-    │   ├── val
 ```
 
 ## Training
